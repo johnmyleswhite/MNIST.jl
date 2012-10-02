@@ -1,4 +1,4 @@
-load("utils.jl")
+load("src/init.jl")
 
 filename = file_path("data", "train-images.idx3-ubyte")
 
@@ -11,6 +11,8 @@ for index in 1:10
 end
 close(f)
 
+read_image_header(filename)
+
 filename = file_path("data", "train-labels.idx1-ubyte")
 
 f = open("labels.tsv", "w")
@@ -19,6 +21,8 @@ for index in 1:10
   println(f, read_label(filename, index))
 end
 close(f)
+
+read_label_header(filename)
 
 read_train_image(1)
 read_test_image(1)
