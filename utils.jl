@@ -1,15 +1,15 @@
-# Assume MNIST format
-# Seek to relevant position
-# Pull out matrix of Uint8's or single Unit8
-# Flip endianness of header
+function read_image_header(filename::String)
+  f = open(filename, "r")
+  magic_number = bswap(read(f, Uint32))
+  total_items = bswap(read(f, Uint32))
+  nrows = bswap(read(f, Uint32))
+  ncols = bswap(read(f, Uint32))
+  close(f)
+  (magic_number, int(total_items), int(nrows), int(ncols))
+end
 
 function read_image(filename::String, index::Int64)
   f = open(filename, "r")
-  # magic_number = read(f, Uint32)
-  # total_items = read(f, Uint32)
-  # nrows = read(f, Uint32)
-  # ncols = read(f, Uint32)
-  # Seek to position for specific image
   seek(f, 16 + 28 * 28 * (index - 1))
   image = zeros(Uint8, 28, 28)
   for i in 1:28
@@ -21,11 +21,16 @@ function read_image(filename::String, index::Int64)
   return image
 end
 
+function read_label_header(filename::String)
+  f = open(filename, "r")
+  magic_number = bswap(read(f, Uint32))
+  total_items = bswap(read(f, Uint32))
+  close(f)
+  return (magic_number, int(total_items))
+end
+
 function read_label(filename::String, index::Int64)
   f = open(filename, "r")
-  # magic_number = read(f, Uint32)
-  # total_items = read(f, Uint32)
-  # Seek to position for specific label
   seek(f, 8 + (index - 1))
   label = read(f, Uint8)
   close(f)
