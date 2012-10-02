@@ -23,6 +23,11 @@ For most people, it's easiest to use only four of these functions:
 This will give you vectors of `Float64`'s as features and
 individual `Float64`'s as labels.
 
+# Install
+
+* Download the data from Yann LeCun's site
+* Place it in the `data` directory with the original filenames.
+
 # Example Usage
 
     load("utils.jl")
