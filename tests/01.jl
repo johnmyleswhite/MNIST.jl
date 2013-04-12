@@ -14,10 +14,10 @@ y = testlabel(1)
 
 X, Y = traindata()
 
-@assert isequal(size(X), (60_000, 28 * 28, ))
+@assert isequal(size(X), (28 * 28, 60_000))
 @assert isequal(size(Y), (60_000, ))
 
 X, Y = testdata()
 
-@assert isequal(size(X), (10_000, 28 * 28, ))
+@assert isequal(size(X), (28 * 28, 10_000))
 @assert isequal(size(Y), (10_000, ))

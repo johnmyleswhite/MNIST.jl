@@ -29,7 +29,7 @@ To access the entire data set at once, use:
 * `testdata()`
 
 The `traindata` method will return a tuple of two items: the first
-element of the tuple will be a 60,000x784 `Float64` matrix
+element of the tuple will be a 784x60,000 `Float64` matrix
 containing all of the images in the training set. The second element
 of the tuple will be a 60,000 entry `Float64` vector containing
 the labels of all of the images in the train set. The `testdata`
