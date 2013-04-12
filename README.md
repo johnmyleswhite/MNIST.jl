@@ -1,42 +1,46 @@
-# Working with the MNIST Data Set
+MNIST.jl
+========
 
-The MNIST data set, available from http://yann.lecun.com/exdb/mnist/,
-is stored in a binary format that is not always ideal for modeling.
+# Introduction
 
-By loading `utils.jl`, you gain access to six functions that make
-working with the MNIST data easier:
+This package provides access to the classic MNIST data set of
+handwritten digits that has been used as a testbed for new
+machine learning methods. The MNIST data set is included with
+the package for convenience without any claim of copyright to
+the images, which are the property of Yann LeCun and Corinna
+Cortes. The images were downloaded into their original IDX
+format from http://yann.lecun.com/exdb/mnist/ and are stored
+in the `data/` directory.
 
-* `read_train_image(index)`
-* `read_test_image(index)`
-* `read_train_label(index)`
-* `read_test_label(index)`
-* `read_train_features(index)`
-* `read_test_features(index)`
+To work with the data, you will typically want to store the digits
+in Julian matrices. To load the i-th image or label, use:
 
-For most people, it's easiest to use only four of these functions:
+* `trainfeatures(i)`
+* `testfeatures(i)`
+* `trainlabel(i)`
+* `testlabel(i)`
 
-* `read_train_features(index)`
-* `read_test_features(index)`
-* `read_train_label(index)`
-* `read_test_label(index)`
+The features will be stored in a 784-entry `Float64` vector and
+the label will be returned as a `Float64` scalar.
 
-This will give you vectors of `Float64`'s as features and
-individual `Float64`'s as labels.
+To access the entire data set at once, use:
 
-# Install
+* `traindata()`
+* `testdata()`
 
-* Download the data from Yann LeCun's site
-* Place it in the `data` directory with the original filenames.
+The `traindata` method will return a tuple of two items: the first
+element of the tuple will be a 60,000x784 `Float64` matrix
+containing all of the images in the training set. The second element
+of the tuple will be a 60,000 entry `Float64` vector containing
+the labels of all of the images in the train set. The `testdata`
+method will return an equivalent tuple for the test set, which contains
+10,000 images instead of 60,000.
 
 # Example Usage
 
-    load("utils.jl")
+	using MNIST
+	features = trainfeatures(1)
+	label = trainlabel(1)
 
-    read_train_image(1)
-    read_test_image(1)
-
-    read_train_features(1)
-    read_test_features(1)
-
-    read_train_label(1)
-    read_test_label(1)
+	trainX, trainY = traindata()
+	testX, testY = testdata()

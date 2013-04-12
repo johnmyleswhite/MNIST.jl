@@ -1,33 +1,23 @@
-load("src/init.jl")
+using MNIST
 
-filename = file_path("data", "train-images.idx3-ubyte")
+x = trainfeatures(1)
+y = trainlabel(1)
 
-f = open("images.tsv", "w")
-for index in 1:10
-  image = read_image(filename, index)
-  for i in 1:28
-    println(f, join(map(e -> int(e), image[i, 1:28]), "\t"))
-  end
-end
-close(f)
+@assert isequal(size(x), (28 * 28, ))
+@assert isa(y, Float64)
 
-read_image_header(filename)
+x = testfeatures(1)
+y = testlabel(1)
 
-filename = file_path("data", "train-labels.idx1-ubyte")
+@assert isequal(size(x), (28 * 28, ))
+@assert isa(y, Float64)
 
-f = open("labels.tsv", "w")
-for index in 1:10
-  label = read_label(filename, index)
-  println(f, read_label(filename, index))
-end
-close(f)
+X, Y = traindata()
 
-read_label_header(filename)
+@assert isequal(size(X), (60_000, 28 * 28, ))
+@assert isequal(size(Y), (60_000, ))
 
-read_train_image(1)
-read_test_image(1)
-read_train_label(1)
-read_test_label(1)
+X, Y = testdata()
 
-read_train_features(1)
-read_test_features(1)
+@assert isequal(size(X), (10_000, 28 * 28, ))
+@assert isequal(size(Y), (10_000, ))
