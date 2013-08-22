@@ -3,7 +3,7 @@ using MNIST
 function preprocess(data)
     trainX, trainLabels = data
     trainX /= max(trainX)
-    D, N = size(trainX)
+    N = size(trainX, 2)
     trainY = zeros(10, N)
     # Use 1-of-c encoding
     for n in 1:N
@@ -13,7 +13,7 @@ function preprocess(data)
 end
 
 function predict(W, b, X)
-    D, N = size(X)
+    N = size(X, 2)
     # Predict everything at once
     Y = W * X
     broadcast(+, Y, b)
@@ -35,24 +35,30 @@ function gradient(W, b, X, T)
     for n in 1:N
         bd += deltas[:, n]
     end
-    E = sum(deltas.^2) / N
+    Wd /= N
+    bd /= N
+    E = sum(deltas.^2) / (2 * N)
     return E, Wd, bd
 end
 
 trainX, trainY = preprocess(traindata())
-W = randn(10, 784) * 0.05
-b = randn(10, 1) * 0.05
-alpha = 0.001
-Y = predict(W, b, trainX)
-for i in 1:100
+D, N = size(trainX)
+F = size(trainY, 1)
+W = randn(F, D) * 0.05
+b = randn(F, 1) * 0.05
+alpha = 0.1
+numEpochs = 10
+
+for i in 1:numEpochs
     E, Wd, bd = gradient(W, b, trainX, trainY)
     W -= Wd * alpha
     b -= bd * alpha
-    println(E)
+    println("Epoch $i, MSE = $E")
 end
+
 testX, testY = preprocess(testdata())
 prediction = predict(W, b, testX)
-F, N = size(testY)
+N = size(testY, 2)
 correct = 0
 for n in 1:N
     v, i1 = findmax(prediction[:, n])
@@ -61,7 +67,5 @@ for n in 1:N
         correct += 1
     end
 end
-println(W)
-println(b)
-println(correct)
+println("$correct/$N correct predictions on test set")
 
