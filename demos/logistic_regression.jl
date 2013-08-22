@@ -30,30 +30,46 @@ function gradient(W, b, X, T)
     F, N = size(T)
     Y = predict(W, b, X)
     deltas = Y-T
-    Wd = deltas * X'
+    Wd = deltas * X' / N
     bd = zeros(size(b))
     for n in 1:N
         bd += deltas[:, n]
     end
-    Wd /= N
     bd /= N
-    E = sum(deltas.^2) / (2 * N)
-    return E, Wd, bd
+    MSE = sum(deltas.^2) / (2 * N)
+    return MSE, Wd, bd
 end
+
+
+alpha = 0.1    # Learning rate
+eta = 0.5      # Momentum
 
 trainX, trainY = preprocess(traindata())
 D, N = size(trainX)
 F = size(trainY, 1)
-W = randn(F, D) * 0.05
-b = randn(F, 1) * 0.05
-alpha = 0.1
-numEpochs = 10
+numEpochs = 20
+batchSize = 32
+stdDev = 0.05
+W = randn(F, D) * stdDev
+b = randn(F, 1) * stdDev
+momentumW = zeros(F, D)
+momentumb = zeros(F, 1)
 
 for i in 1:numEpochs
-    E, Wd, bd = gradient(W, b, trainX, trainY)
-    W -= Wd * alpha
-    b -= bd * alpha
-    println("Epoch $i, MSE = $E")
+    MSE = 0.0
+    indices = shuffle([1:N])
+    for n in 1:batchSize:N
+        tmpMSE, Wd, bd = gradient(W, b,
+            trainX[:, indices[n:min(n+batchSize-1, end)]],
+            trainY[:, indices[n:min(n+batchSize-1, end)]])
+        MSE += tmpMSE
+        momentumW = eta * momentumW - alpha * Wd
+        momentumb = eta * momentumb - alpha * bd
+        W += momentumW
+        b += momentumb
+    end
+    MSE /= fld((N + batchSize - 1), batchSize)
+    println("Epoch $i, MSE = $MSE")
 end
 
 testX, testY = preprocess(testdata())
@@ -68,4 +84,3 @@ for n in 1:N
     end
 end
 println("$correct/$N correct predictions on test set")
-
