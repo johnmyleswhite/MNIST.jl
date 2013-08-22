@@ -1,6 +1,6 @@
 using MNIST
 
-function preprocess(data)
+function preprocess(data::(Array{Float64,2},Array{Float64,1}))
     trainX, trainLabels = data
     trainX /= max(trainX)
     N = size(trainX, 2)
@@ -12,7 +12,9 @@ function preprocess(data)
     return trainX, trainY
 end
 
-function predict(W, b, X)
+function predict(W::Array{Float64,2},
+                 b::Array{Float64,2},
+                 X::Array{Float64,2})
     N = size(X, 2)
     # Predict everything at once
     Y = W * X
@@ -26,10 +28,12 @@ function predict(W, b, X)
     return Y
 end
 
-function gradient(W, b, X, T)
+function gradient(W::Array{Float64,2},
+                  b::Array{Float64,2},
+                  X::Array{Float64,2},
+                  T::Array{Float64,2})
     F, N = size(T)
-    Y = predict(W, b, X)
-    deltas = Y-T
+    deltas = predict(W, b, X) - T
     Wd = deltas * X' / N
     bd = zeros(size(b))
     for n in 1:N
@@ -43,13 +47,13 @@ end
 
 alpha = 0.1    # Learning rate
 eta = 0.5      # Momentum
+numEpochs = 10 # Number of training epochs
+batchSize = 32 # Size of mini-batches
+stdDev = 0.05  # Standard deviation of initial (Gaussian distributed) weights
 
 trainX, trainY = preprocess(traindata())
 D, N = size(trainX)
 F = size(trainY, 1)
-numEpochs = 20
-batchSize = 32
-stdDev = 0.05
 W = randn(F, D) * stdDev
 b = randn(F, 1) * stdDev
 momentumW = zeros(F, D)
