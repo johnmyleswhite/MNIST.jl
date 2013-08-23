@@ -27,7 +27,7 @@ function gradient(W::Array{Float64,2},
                   b::Array{Float64,2},
                   X::Array{Float64,2},
                   T::Array{Float64,2})
-    F, N = size(T)
+    N = size(T, 2)
     deltas = predict(W, b, X) - T
     Wd = deltas * X' / N
     bd = zeros(size(b))
