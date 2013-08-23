@@ -1,4 +1,5 @@
 using MNIST
+using NumericExtensions
 
 # Multinomial logistic regression
 
@@ -11,7 +12,7 @@ function preprocess(data::(Array{Float64,2},Array{Float64,1}))
     for n in 1:N
         trainY[trainLabels[n]+1, n] = 1
     end
-    return trainX, trainY
+    trainX, trainY
 end
 
 function predict(W::Array{Float64,2},
@@ -19,15 +20,9 @@ function predict(W::Array{Float64,2},
                  X::Array{Float64,2})
     N = size(X, 2)
     # Predict everything at once
-    Y = W * X
-    broadcast(+, Y, b)
-    # We use a trick here to avoid NaNs: we substract the maximum of each row
-    # (this is mathematically equivalent)
-    for n in 1:N
-        Y[:, n] = exp(Y[:, n] - max(Y[:, n]))
-        Y[:, n] /= sum(Y[:, n])
-    end
-    return Y
+    A = W * X
+    broadcast(+, A, b)
+    softmax(A, 1)
 end
 
 function gradient(W::Array{Float64,2},
@@ -43,7 +38,7 @@ function gradient(W::Array{Float64,2},
     end
     bd /= N
     MSE = sum(deltas.^2) / (2 * N)
-    return MSE, Wd, bd
+    MSE, Wd, bd
 end
 
 
