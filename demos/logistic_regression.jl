@@ -30,11 +30,7 @@ function gradient(W::Array{Float64,2},
     N = size(T, 2)
     deltas = predict(W, b, X) - T
     Wd = deltas * X' / N
-    bd = zeros(size(b))
-    for n in 1:N
-        bd += deltas[:, n]
-    end
-    bd /= N
+    bd = sum(deltas, 2) / N
     MSE = sum(deltas.^2) / (2 * N)
     MSE, Wd, bd
 end
