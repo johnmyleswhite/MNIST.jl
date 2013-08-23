@@ -1,5 +1,7 @@
 using MNIST
 
+# Multinomial logistic regression
+
 function preprocess(data::(Array{Float64,2},Array{Float64,1}))
     trainX, trainLabels = data
     trainX /= max(trainX)
@@ -49,13 +51,12 @@ alpha = 0.1    # Learning rate
 eta = 0.5      # Momentum
 numEpochs = 10 # Number of training epochs
 batchSize = 32 # Size of mini-batches
-stdDev = 0.05  # Standard deviation of initial (Gaussian distributed) weights
 
 trainX, trainY = preprocess(traindata())
 D, N = size(trainX)
 F = size(trainY, 1)
-W = randn(F, D) * stdDev
-b = randn(F, 1) * stdDev
+W = zeros(F, D)
+b = zeros(F, 1)
 momentumW = zeros(F, D)
 momentumb = zeros(F, 1)
 
@@ -81,9 +82,9 @@ prediction = predict(W, b, testX)
 N = size(testY, 2)
 correct = 0
 for n in 1:N
-    v, i1 = findmax(prediction[:, n])
-    v, i2 = findmax(testY[:, n])
-    if i1 == i2
+    c1 = indmax(prediction[:, n])
+    c2 = indmax(testY[:, n])
+    if c1 == c2
         correct += 1
     end
 end
