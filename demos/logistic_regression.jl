@@ -18,8 +18,6 @@ end
 function predict(W::Array{Float64,2},
                  b::Array{Float64,2},
                  X::Array{Float64,2})
-    N = size(X, 2)
-    # Predict everything at once
     A = W * X
     broadcast(+, A, b)
     softmax(A, 1)
