@@ -1,11 +1,15 @@
+include("utils.jl")
 using NumericExtensions
+using MNIST
 
-type ANN
+# Artificial neural network
+
+type ANN <: Model
     w::Array{Float64,1}
     dims::Array{Int64,1}
     L::Int64
 
-    function ANN(dims::Array{Int64,1}, stdDev::Float64)
+    function ANN(dims::Vector, stdDev::Real)
         numWeights = 0
         L = size(dims, 1) - 1
         for l in 1:L
@@ -16,8 +20,14 @@ type ANN
     end
 end
 
-function numLayers(ann::ANN)
-    size(ann.dims, 1) - 1
+function update(ann::ANN, momentums::Vector)
+    for l in 1:ann.L
+        setWeights(ann, l, getWeights(ann, l) + momentums[l])
+    end
+end
+
+function getDims(ann::ANN)
+    {(ann.dims[l+1], ann.dims[l]+1) for l in 1:ann.L}
 end
 
 function getWeights(ann::ANN, layer::Integer)
@@ -29,7 +39,7 @@ function getWeights(ann::ANN, layer::Integer)
             ann.dims[layer+1], ann.dims[layer]+1)
 end
 
-function setWeights(ann::ANN, layer::Integer, W::Array{Float64,2})
+function setWeights(ann::ANN, layer::Integer, W::Matrix)
     offset = 1
     for l in 1:layer-1
         offset += (ann.dims[l]+1) * ann.dims[l+1]
@@ -38,7 +48,7 @@ function setWeights(ann::ANN, layer::Integer, W::Array{Float64,2})
 end
 
 function predict(ann::ANN,
-                 X::Array{Float64,2})
+                 X::Matrix)
     outputs = {}
     Z = X
     for l in 1:ann.L
@@ -57,12 +67,13 @@ function predict(ann::ANN,
 end
 
 function gradient(ann::ANN,
-                  X::Array{Float64,2},
-                  T::Array{Float64,2})
+                  X::Matrix,
+                  T::Matrix)
     gradients = {}
     N = size(X, 2)
     Y, outputs = predict(ann, X)
     dEdX = Y - T
+    MSE = sum(dEdX.^2) / (2 * N)
     for l in ann.L:-1:1
         W = getWeights(ann, l)
         Z = outputs[l+1]
@@ -79,5 +90,23 @@ function gradient(ann::ANN,
           dEdX = W' * Deltas
         end
     end
-    gradients
+    MSE, gradients
+end
+
+function demo_ann(numEpochs::Integer = 10,
+                  alpha::Real = 0.1,
+                  eta::Real = 0.5,
+                  batchSize::Integer = 32,
+                  stdDev::Real = 0.05,
+                  H::Vector = [100])
+    trainX, trainY = preprocess(traindata())
+    D = size(trainX, 1)
+    F = size(trainY, 1)
+    model = ANN([D, H, F], stdDev)
+    model = sgd(model, trainX, trainY, numEpochs, alpha, eta, batchSize)
+
+    testX, testY = preprocess(testdata())
+    correct, accuracy = score(model, testX, testY)
+    accuracy *= 100
+    println("$correct correct predictions ($accuracy% accuracy) on test set")
 end
