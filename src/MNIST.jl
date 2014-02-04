@@ -50,7 +50,7 @@ module MNIST
         return image
     end
 
-    function getlabel(filename::String, index::Int64)
+    function getlabel(filename::String, index::Integer)
         io = open(filename, "r")
         seek(io, LABELOFFSET + (index - 1))
         label = read(io, Uint8)
