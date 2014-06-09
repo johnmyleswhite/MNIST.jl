@@ -12,50 +12,37 @@ module MNIST
     const TESTIMAGES = Pkg.dir("MNIST", "data", "t10k-images.idx3-ubyte")
     const TESTLABELS = Pkg.dir("MNIST", "data", "t10k-labels.idx1-ubyte")
 
-    function traindata()
-        return features, labels
-    end
-
-    function testdata()
-        return features, labels
-    end
     function imageheader(filename::String)
-        io = open(filename, "r")
-        magic_number = bswap(read(io, Uint32))
-        total_items = bswap(read(io, Uint32))
-        nrows = bswap(read(io, Uint32))
-        ncols = bswap(read(io, Uint32))
-        close(io)
-        return magic_number, int(total_items), int(nrows), int(ncols)
+        open(filename, "r") do io
+            magic_number = bswap(read(io, Uint32))
+            total_items = bswap(read(io, Uint32))
+            nrows = bswap(read(io, Uint32))
+            ncols = bswap(read(io, Uint32))
+            return magic_number, int(total_items), int(nrows), int(ncols)
+	end
     end
 
     function labelheader(filename::String)
-        io = open(filename, "r")
-        magic_number = bswap(read(io, Uint32))
-        total_items = bswap(read(io, Uint32))
-        close(io)
-        return magic_number, int(total_items)
+        open(filename, "r") do io
+            magic_number = bswap(read(io, Uint32))
+            total_items = bswap(read(io, Uint32))
+            return magic_number, int(total_items)
+        end
     end
 
     function getimage(filename::String, index::Integer)
-        io = open(filename, "r")
-        seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-        image = zeros(Uint8, NROWS, NCOLS)
-        for i in 1:NROWS
-            for j in 1:NCOLS
-                image[i, j] = read(io, Uint8)
-            end
+        open(filename, "r") do io
+            seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
+            return read(io, Uint8, (MNIST.NROWS, MNIST.NCOLS))'
         end
-        close(io)
-        return image
     end
 
     function getlabel(filename::String, index::Integer)
-        io = open(filename, "r")
-        seek(io, LABELOFFSET + (index - 1))
-        label = read(io, Uint8)
-        close(io)
-        return label
+        open(filename, "r") do io
+            seek(io, LABELOFFSET + (index - 1))
+            label = read(io, Uint8)
+            return label
+        end
     end
 
     trainimage(index::Integer) = float64(getimage(TRAINIMAGES, index))
