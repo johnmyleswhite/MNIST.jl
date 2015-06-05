@@ -1,4 +1,6 @@
 module MNIST
+    using Compat
+
     export trainfeatures, testfeatures,
            trainlabel, testlabel,
            traindata, testdata
@@ -45,10 +47,10 @@ module MNIST
         end
     end
 
-    trainimage(index::Integer) = float64(getimage(TRAINIMAGES, index))
-    testimage(index::Integer) = float64(getimage(TESTIMAGES, index))
-    trainlabel(index::Integer) = float64(getlabel(TRAINLABELS, index))
-    testlabel(index::Integer) = float64(getlabel(TESTLABELS, index))
+    @compat trainimage(index::Integer) = map(Float64,getimage(TRAINIMAGES, index))
+    @compat testimage(index::Integer) = map(Float64,getimage(TESTIMAGES, index))
+    @compat trainlabel(index::Integer) = map(Float64,getlabel(TRAINLABELS, index))
+    @compat testlabel(index::Integer) = map(Float64,getlabel(TESTLABELS, index))
     trainfeatures(index::Integer) = vec(trainimage(index))
     testfeatures(index::Integer) = vec(testimage(index))
 
