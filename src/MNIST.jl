@@ -1,4 +1,6 @@
 module MNIST
+    using Compat
+
     export trainfeatures, testfeatures,
            trainlabel, testlabel,
            traindata, testdata
@@ -26,7 +28,7 @@ module MNIST
         nrows = bswap(read(io, Uint32))
         ncols = bswap(read(io, Uint32))
         close(io)
-        return magic_number, int(total_items), int(nrows), int(ncols)
+        return magic_number, Int(total_items), Int(nrows), Int(ncols)
     end
 
     function labelheader(filename::String)
@@ -34,7 +36,7 @@ module MNIST
         magic_number = bswap(read(io, Uint32))
         total_items = bswap(read(io, Uint32))
         close(io)
-        return magic_number, int(total_items)
+        return magic_number, Int(total_items)
     end
 
     function getimage(filename::String, index::Integer)
@@ -58,10 +60,10 @@ module MNIST
         return label
     end
 
-    trainimage(index::Integer) = float64(getimage(TRAINIMAGES, index))
-    testimage(index::Integer) = float64(getimage(TESTIMAGES, index))
-    trainlabel(index::Integer) = float64(getlabel(TRAINLABELS, index))
-    testlabel(index::Integer) = float64(getlabel(TESTLABELS, index))
+    trainimage(index::Integer) = map(Float64,getimage(TRAINIMAGES, index))
+    testimage(index::Integer) = map(Float64,getimage(TESTIMAGES, index))
+    trainlabel(index::Integer) = map(Float64,getlabel(TRAINLABELS, index))
+    testlabel(index::Integer) = map(Float64,getlabel(TESTLABELS, index))
     trainfeatures(index::Integer) = vec(trainimage(index))
     testfeatures(index::Integer) = vec(testimage(index))
 
