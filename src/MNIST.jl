@@ -20,7 +20,7 @@ module MNIST
             total_items = bswap(read(io, Uint32))
             nrows = bswap(read(io, Uint32))
             ncols = bswap(read(io, Uint32))
-            return magic_number, int(total_items), int(nrows), int(ncols)
+            return magic_number, Int(total_items), Int(nrows), Int(ncols)
 	end
     end
 
@@ -28,7 +28,7 @@ module MNIST
         open(filename, "r") do io
             magic_number = bswap(read(io, Uint32))
             total_items = bswap(read(io, Uint32))
-            return magic_number, int(total_items)
+            return magic_number, Int(total_items)
         end
     end
 
