@@ -7,51 +7,80 @@ module MNIST
 
     const IMAGEOFFSET = 16
     const LABELOFFSET = 8
+
     const NROWS = 28
     const NCOLS = 28
-    const TRAINIMAGES = Pkg.dir("MNIST", "data", "train-images.idx3-ubyte")
-    const TRAINLABELS = Pkg.dir("MNIST", "data", "train-labels.idx1-ubyte")
-    const TESTIMAGES = Pkg.dir("MNIST", "data", "t10k-images.idx3-ubyte")
-    const TESTLABELS = Pkg.dir("MNIST", "data", "t10k-labels.idx1-ubyte")
 
-    function imageheader(filename::String)
-        open(filename, "r") do io
-            magic_number = bswap(read(io, Uint32))
-            total_items = bswap(read(io, Uint32))
-            nrows = bswap(read(io, Uint32))
-            ncols = bswap(read(io, Uint32))
-            @compat return magic_number, Int(total_items), Int(nrows), Int(ncols)
-        end
+    const TRAINIMAGES = joinpath(
+        dirname(@__FILE__), "..", "data", "train-images.idx3-ubyte"
+    )
+    const TRAINLABELS = joinpath(
+        dirname(@__FILE__), "..", "data", "train-labels.idx1-ubyte"
+    )
+    const TESTIMAGES = joinpath(
+        dirname(@__FILE__), "..", "data", "t10k-images.idx3-ubyte"
+    )
+    const TESTLABELS = joinpath(
+        dirname(@__FILE__), "..", "data", "t10k-labels.idx1-ubyte"
+    )
+
+    function imageheader(@compat(filename::AbstractString))
+        io = open(filename, "r")
+        magic_number = bswap(read(io, @compat(UInt32)))
+        total_items = bswap(read(io, @compat(UInt32)))
+        nrows = bswap(read(io, @compat(UInt32)))
+        ncols = bswap(read(io, @compat(UInt32)))
+        close(io)
+        return (
+            magic_number,
+            @compat(Int(total_items)),
+            @compat(Int(nrows)),
+            @compat(Int(ncols))
+        )
     end
 
-    function labelheader(filename::String)
-        open(filename, "r") do io
-            magic_number = bswap(read(io, Uint32))
-            total_items = bswap(read(io, Uint32))
-            return magic_number, int(total_items)
-        end
+    function labelheader(@compat(filename::AbstractString))
+        io = open(filename, "r")
+        magic_number = bswap(read(io, @compat(UInt32)))
+        total_items = bswap(read(io, @compat(UInt32)))
+        close(io)
+        return magic_number, @compat(Int(total_items))
     end
 
-    function getimage(filename::String, index::Integer)
-        open(filename, "r") do io
-            seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-            return read(io, Uint8, (MNIST.NROWS, MNIST.NCOLS))'
-        end
+    function getimage(@compat(filename::AbstractString), index::Integer)
+        io = open(filename, "r")
+        seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
+        image_t = read(io, @compat(UInt8), (MNIST.NROWS, MNIST.NCOLS))
+        close(io)
+        return image_t'
     end
 
-    function getlabel(filename::String, index::Integer)
-        open(filename, "r") do io
-            seek(io, LABELOFFSET + (index - 1))
-            label = read(io, Uint8)
-            return label
-        end
+    function getlabel(@compat(filename::AbstractString), index::Integer)
+        io = open(filename, "r")
+        seek(io, LABELOFFSET + (index - 1))
+        label = read(io, @compat(UInt8))
+        close(io)
+        return label
     end
 
-    @compat trainimage(index::Integer) = map(Float64,getimage(TRAINIMAGES, index))
-    @compat testimage(index::Integer) = map(Float64,getimage(TESTIMAGES, index))
-    @compat trainlabel(index::Integer) = map(Float64,getlabel(TRAINLABELS, index))
-    @compat testlabel(index::Integer) = map(Float64,getlabel(TESTLABELS, index))
+    function trainimage(index::Integer)
+        convert(Array{Float64}, getimage(TRAINIMAGES, index))
+    end
+
+    function testimage(index::Integer)
+        convert(Array{Float64}, getimage(TESTIMAGES, index))
+    end
+
+    function trainlabel(index::Integer)
+        convert(Float64, getlabel(TRAINLABELS, index))
+    end
+
+    function testlabel(index::Integer)
+        convert(Float64, getlabel(TESTLABELS, index))
+    end
+
     trainfeatures(index::Integer) = vec(trainimage(index))
+
     testfeatures(index::Integer) = vec(testimage(index))
 
     function traindata()
