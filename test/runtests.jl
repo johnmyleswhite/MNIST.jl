@@ -1,11 +1,20 @@
+using MNIST
+
+if VERSION >= v"0.5-"
+    using Base.Test
+else
+    using BaseTestNext
+    const Test = BaseTestNext
+end
+
 tests = [
-    "01",
+    ("header.jl", "Unit tests for constants and reading file headers")
+    ("features.jl", "User interface to load data in dataset layout")
 ]
 
-print_with_color(:blue, "Running tests:\n")
-
-for t in tests
-    test_fn = "$t.jl"
-    print_with_color(:green, "* $test_fn\n")
-    include(test_fn)
+for (fn, desc) in tests
+    @testset "$desc ($fn)" begin
+        include(fn)
+    end
 end
+

@@ -1,6 +1,8 @@
 MNIST.jl
 ========
 
+[![Build Status](https://travis-ci.org/johnmyleswhite/MNIST.jl.svg?branch=master)](https://travis-ci.org/johnmyleswhite/MNIST.jl)
+
 # Introduction
 
 This package provides access to the classic MNIST data set of
