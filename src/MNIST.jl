@@ -1,6 +1,4 @@
 module MNIST
-    using Compat
-
     export trainfeatures, testfeatures,
            trainlabel, testlabel,
            traindata, testdata
@@ -24,41 +22,41 @@ module MNIST
         dirname(@__FILE__), "..", "data", "t10k-labels.idx1-ubyte"
     )
 
-    function imageheader(@compat(filename::AbstractString))
+    function imageheader(filename::AbstractString)
         io = open(filename, "r")
-        magic_number = bswap(read(io, @compat(UInt32)))
-        total_items = bswap(read(io, @compat(UInt32)))
-        nrows = bswap(read(io, @compat(UInt32)))
-        ncols = bswap(read(io, @compat(UInt32)))
+        magic_number = bswap(read(io, UInt32))
+        total_items = bswap(read(io, UInt32))
+        nrows = bswap(read(io, UInt32))
+        ncols = bswap(read(io, UInt32))
         close(io)
         return (
             magic_number,
-            @compat(Int(total_items)),
-            @compat(Int(nrows)),
-            @compat(Int(ncols))
+            Int(total_items),
+            Int(nrows),
+            Int(ncols)
         )
     end
 
-    function labelheader(@compat(filename::AbstractString))
+    function labelheader(filename::AbstractString)
         io = open(filename, "r")
-        magic_number = bswap(read(io, @compat(UInt32)))
-        total_items = bswap(read(io, @compat(UInt32)))
+        magic_number = bswap(read(io, UInt32))
+        total_items = bswap(read(io, UInt32))
         close(io)
-        return magic_number, @compat(Int(total_items))
+        return magic_number, Int(total_items)
     end
 
-    function getimage(@compat(filename::AbstractString), index::Integer)
+    function getimage(filename::AbstractString, index::Integer)
         io = open(filename, "r")
         seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-        image_t = read(io, @compat(UInt8), (MNIST.NROWS, MNIST.NCOLS))
+        image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
         close(io)
         return image_t'
     end
 
-    function getlabel(@compat(filename::AbstractString), index::Integer)
+    function getlabel(filename::AbstractString, index::Integer)
         io = open(filename, "r")
         seek(io, LABELOFFSET + (index - 1))
-        label = read(io, @compat(UInt8))
+        label = read(io, UInt8)
         close(io)
         return label
     end
@@ -105,3 +103,4 @@ module MNIST
         return features, labels
     end
 end # module
+
