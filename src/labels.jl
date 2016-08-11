@@ -6,7 +6,7 @@ label is located and returns the byte at that position as `UInt8`
 """
 function readlabel(io::IO, index::Integer)
     seek(io, LABELOFFSET + (index - 1))
-    read(io, UInt8)
+    read(io, UInt8)::UInt8
 end
 
 
@@ -24,7 +24,7 @@ function readlabel(io::IO, indices::AbstractVector)
         labels[dst_index] = readlabel(io, src_index)
         dst_index += 1
     end
-    labels
+    labels::Vector{UInt8}
 end
 
 
@@ -51,19 +51,27 @@ on the official homepage at http://yann.lecun.com/exdb/mnist/
 
 $(idx_doc("UInt8"))
 """
-function readlabel(file::AbstractString, indices)
+@noinline function readlabel(file::AbstractString, index::Integer)
+    open(file, "r") do io
+        _, nlabels = labelheader(io)
+        @assert minimum(index) >= 1 && maximum(index) <= nlabels
+        readlabel(io, index)
+    end::UInt8
+end
+
+@noinline function readlabel(file::AbstractString, indices::AbstractVector)
     open(file, "r") do io
         _, nlabels = labelheader(io)
         @assert minimum(indices) >= 1 && maximum(indices) <= nlabels
         readlabel(io, indices)
-    end
+    end::Vector{UInt8}
 end
 
-function readlabel(file::AbstractString)
+@noinline function readlabel(file::AbstractString)
     open(file, "r") do io
         _, nlabels = labelheader(io)
         readlabel(io, 1:nlabels)
-    end
+    end::Vector{UInt8}
 end
 
 

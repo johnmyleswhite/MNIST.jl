@@ -37,13 +37,13 @@ function readimage_raw(io::IO, indicies::AbstractVector, nrows::Integer, ncols::
     images
 end
 
-
 """
-    readimage_raw(file::AbstractString, [indices])
+    readimage_raw(file, [indices])
 
 Reads the images denoted by `indices` from `file`. The given `file`
-is assumed to be in the MNIST image-file format, as it is described
-on the official homepage at http://yann.lecun.com/exdb/mnist/
+can either be specified using an IO-stream or a string and is assumed
+to be in the MNIST image-file format, as it is described on the
+official homepage at http://yann.lecun.com/exdb/mnist/
 
 - if `indices` is an `Integer`, the single image is returned as
 `Matrix{UInt8}` in horizontal major layout, which means that the
@@ -59,19 +59,29 @@ dimension denotes the index of the image.
 - if `indices` is ommited all images are returned
 (as 3D Tensor described above)
 """
-function readimage_raw(file::AbstractString, indices)
-    open(file, "r") do io
-        _, nimages, nrows, ncols = imageheader(io)
-        @assert minimum(indices) >= 1 && maximum(indices) <= nimages
-        readimage_raw(io, indices, nrows, ncols)
-    end
+function readimage_raw(io::IO, indices)
+    _, nimages, nrows, ncols = imageheader(io)
+    @assert minimum(indices) >= 1 && maximum(indices) <= nimages
+    readimage_raw(io, indices, nrows, ncols)
 end
 
-function readimage_raw(file::AbstractString)
+@noinline function readimage_raw(file::AbstractString, index::Integer)
+    open(file, "r") do io
+        readimage(io, index)
+    end::Matrix{UInt8}
+end
+
+@noinline function readimage_raw(file::AbstractString, indices::AbstractVector)
+    open(file, "r") do io
+        readimage(io, indices)
+    end::Array{UInt8,3}
+end
+
+@noinline function readimage_raw(file::AbstractString)
     open(file, "r") do io
         _, nimages, nrows, ncols = imageheader(io)
         readimage_raw(io, 1:nimages, nrows, ncols)
-    end
+    end::Array{UInt8,3}
 end
 
 

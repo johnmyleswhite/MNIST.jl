@@ -18,7 +18,7 @@ function imageheader(io::IO)
     total_items  = bswap(read(io, UInt32))
     nrows = bswap(read(io, UInt32))
     ncols = bswap(read(io, UInt32))
-    magic_number, Int(total_items), Int(nrows), Int(ncols)
+    UInt32(magic_number), Int(total_items), Int(nrows), Int(ncols)
 end
 
 
@@ -28,8 +28,8 @@ end
 Opens and reads the first four 32 bits values of `file`
 and returns them interpreted as an MNIST-image-file header
 """
-function imageheader(file::AbstractString)
-    open(imageheader, file, "r")
+@noinline function imageheader(file::AbstractString)
+    open(imageheader, file, "r")::Tuple{UInt32,Int,Int,Int}
 end
 
 
@@ -46,7 +46,7 @@ function labelheader(io::IO)
     seekstart(io)
     magic_number = bswap(read(io, UInt32))
     total_items  = bswap(read(io, UInt32))
-    magic_number, Int(total_items)
+    UInt32(magic_number), Int(total_items)
 end
 
 
@@ -56,7 +56,7 @@ end
 Opens and reads the first two 32 bits values of `file`
 and returns them interpreted as an MNIST-label-file header
 """
-function labelheader(file::AbstractString)
-    open(labelheader, file, "r")
+@noinline function labelheader(file::AbstractString)
+    open(labelheader, file, "r")::Tuple{UInt32,Int}
 end
 
