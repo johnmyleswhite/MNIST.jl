@@ -25,12 +25,12 @@ variables) and the second dimension denotes the observations (images)
 """
 
 """ $(feature_doc("train")) """
-trainfeatures() = _flattenimage(trainimage(Float64))
-trainfeatures(index) = _flattenimage(trainimage(Float64, index))
+trainfeatures() = _flattenimage(trainimage_raw(Float64))
+trainfeatures(index) = _flattenimage(trainimage_raw(Float64, index))
 
 """ $(feature_doc("test")) """
-testfeatures() = _flattenimage(testimage(Float64))
-testfeatures(index) = _flattenimage(testimage(Float64, index))
+testfeatures() = _flattenimage(testimage_raw(Float64))
+testfeatures(index) = _flattenimage(testimage_raw(Float64, index))
 
 
 

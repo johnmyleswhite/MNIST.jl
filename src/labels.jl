@@ -28,7 +28,6 @@ function readlabel(io::IO, indices::AbstractVector)
 end
 
 
-# We need this in acouple of places
 idx_doc(T) =
 """
 - if `indices` is an `Integer`, the single label is returned as
@@ -78,7 +77,7 @@ end
 # Public Interface
 
 """
-    trainlabel([T = UInt8], [indices])
+    trainlabel([indices])
 
 Returns the MNIST **trainset** labels denoted by `indices`.
 
@@ -90,7 +89,7 @@ trainlabel(indices::AbstractVector) = Vector{Float64}(readlabel(TRAINLABELS, ind
 
 
 """
-    testlabel([T = UInt8], [indices])
+    testlabel([indices])
 
 Returns the MNIST **testset** labels denoted by `indices`.
 

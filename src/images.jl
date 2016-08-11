@@ -25,11 +25,11 @@ Reads the first `nrows` * `ncols` bytes for each image index in
 `(nrows, ncols, length(indices))` in the same order as denoted
 by `indices`.
 """
-function readimage_raw(io::IO, indicies::AbstractVector, nrows::Integer, ncols::Integer)
-    images = Array(UInt8, nrows, ncols, length(indicies))
+function readimage_raw(io::IO, indices::AbstractVector, nrows::Integer, ncols::Integer)
+    images = Array(UInt8, nrows, ncols, length(indices))
     buffer = Array(UInt8, nrows, ncols)
     dst_index = 1
-    for src_index in indicies
+    for src_index in indices
         readimage_raw!(buffer, io, src_index, nrows, ncols)
         copy!(images, 1 + nrows * ncols * (dst_index - 1), buffer, 1, nrows * ncols)
         dst_index += 1
@@ -67,13 +67,13 @@ end
 
 @noinline function readimage_raw(file::AbstractString, index::Integer)
     open(file, "r") do io
-        readimage(io, index)
+        readimage_raw(io, index)
     end::Matrix{UInt8}
 end
 
 @noinline function readimage_raw(file::AbstractString, indices::AbstractVector)
     open(file, "r") do io
-        readimage(io, indices)
+        readimage_raw(io, indices)
     end::Array{UInt8,3}
 end
 
