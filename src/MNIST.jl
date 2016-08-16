@@ -1,36 +1,36 @@
 module MNIST
 
-export
+    export
 
-    trainimage,
-    testimage,
+        trainimage,
+        testimage,
 
-    trainlabel,
-    testlabel,
+        trainlabel,
+        testlabel,
 
-    trainfeatures,
-    testfeatures,
+        trainfeatures,
+        testfeatures,
 
-    traindata,
-    testdata
+        traindata,
+        testdata
 
-# Constants
+    # Constants
 
-const IMAGEOFFSET = 16
-const LABELOFFSET = 8
+    const IMAGEOFFSET = 16
+    const LABELOFFSET = 8
 
-const DATA_PATH = joinpath(dirname(@__FILE__), "..", "data")
-const TRAINIMAGES = joinpath(DATA_PATH, "train-images.idx3-ubyte")
-const TRAINLABELS = joinpath(DATA_PATH, "train-labels.idx1-ubyte")
-const TESTIMAGES  = joinpath(DATA_PATH, "t10k-images.idx3-ubyte")
-const TESTLABELS  = joinpath(DATA_PATH, "t10k-labels.idx1-ubyte")
+    const DATA_PATH = joinpath(dirname(@__FILE__), "..", "data")
+    const TRAINIMAGES = joinpath(DATA_PATH, "train-images.idx3-ubyte")
+    const TRAINLABELS = joinpath(DATA_PATH, "train-labels.idx1-ubyte")
+    const TESTIMAGES  = joinpath(DATA_PATH, "t10k-images.idx3-ubyte")
+    const TESTLABELS  = joinpath(DATA_PATH, "t10k-labels.idx1-ubyte")
 
-# Includes
+    # Includes
 
-include("header.jl")
-include("images.jl")
-include("labels.jl")
-include("features.jl")
+    include("header.jl")
+    include("images.jl")
+    include("labels.jl")
+    include("features.jl")
 
 end
 
