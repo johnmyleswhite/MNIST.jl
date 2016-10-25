@@ -22,13 +22,11 @@ module MNIST
         dirname(@__FILE__), "..", "data", "t10k-labels.idx1-ubyte"
     )
 
-    function imageheader(filename::AbstractString)
-        io = open(filename, "r")
+    function imageheader(io::IO)
         magic_number = bswap(read(io, UInt32))
         total_items = bswap(read(io, UInt32))
         nrows = bswap(read(io, UInt32))
         ncols = bswap(read(io, UInt32))
-        close(io)
         return (
             magic_number,
             Int(total_items),
@@ -37,70 +35,69 @@ module MNIST
         )
     end
 
-    function labelheader(filename::AbstractString)
-        io = open(filename, "r")
+    function labelheader(io::IO)
         magic_number = bswap(read(io, UInt32))
         total_items = bswap(read(io, UInt32))
-        close(io)
         return magic_number, Int(total_items)
     end
 
-    function getimage(filename::AbstractString, index::Integer)
-        io = open(filename, "r")
+    function getrawimage(io::IO, index::Integer)
         seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
         image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
-        close(io)
         return image_t'
     end
 
-    function getlabel(filename::AbstractString, index::Integer)
-        io = open(filename, "r")
+    function getrawlabel(io::IO, index::Integer)
         seek(io, LABELOFFSET + (index - 1))
         label = read(io, UInt8)
-        close(io)
         return label
     end
 
-    function trainimage(index::Integer)
-        convert(Array{Float64}, getimage(TRAINIMAGES, index))
+    function getimage(io::IO, index::Integer)
+        convert(Array{Float64}, getrawimage(io, index))
     end
 
-    function testimage(index::Integer)
-        convert(Array{Float64}, getimage(TESTIMAGES, index))
+    function getlabel(io::IO, index::Integer)
+      convert(Float64, getrawlabel(io, index))
     end
 
-    function trainlabel(index::Integer)
-        convert(Float64, getlabel(TRAINLABELS, index))
-    end
+    getfeatures(io::IO, index::Integer) = vec(getimage(io, index))
 
-    function testlabel(index::Integer)
-        convert(Float64, getlabel(TESTLABELS, index))
-    end
+    trainfeatures(index::Integer) =
+        open(io -> vec(getimage(io, index)), TRAINIMAGES)
 
-    trainfeatures(index::Integer) = vec(trainimage(index))
+    testfeatures(index::Integer) =
+        open(io -> vec(getimage(io, index)), TESTIMAGES)
 
-    testfeatures(index::Integer) = vec(testimage(index))
+    trainlabel(index::Integer) =
+        open(io -> getlabel(io, index), TRAINLABELS)
+
+    testlabel(index::Integer) =
+        open(io -> getlabel(io, index), TESTLABELS)
 
     function traindata()
-        _, nimages, nrows, ncols = imageheader(TRAINIMAGES)
+        io = IOBuffer(read(TRAINIMAGES))
+        labelio = IOBuffer(read(TRAINLABELS))
+        _, nimages, nrows, ncols = imageheader(io)
         features = Array(Float64, nrows * ncols, nimages)
         labels = Array(Float64, nimages)
         for index in 1:nimages
-            features[:, index] = trainfeatures(index)
-            labels[index] = trainlabel(index)
+            features[:, index] = getfeatures(io, index)
+            labels[index] = getlabel(labelio, index)
         end
         return features, labels
     end
 
     function testdata()
-        _, nimages, nrows, ncols = imageheader(TESTIMAGES)
+        io = IOBuffer(read(TESTIMAGES))
+        labelio = IOBuffer(read(TESTLABELS))
+        _, nimages, nrows, ncols = imageheader(io)
         features = Array(Float64, nrows * ncols, nimages)
         labels = Array(Float64, nimages)
         for index in 1:nimages
-            features[:, index] = testfeatures(index)
-            labels[index] = testlabel(index)
+            features[:, index] = getfeatures(io, index)
+            labels[index] = getlabel(labelio, index)
         end
         return features, labels
     end
 end # module
-
