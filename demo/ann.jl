@@ -5,13 +5,13 @@ using MNIST
 # Artificial neural network
 
 type ANN <: Model
-    w::Array{Float64,1}
-    dims::Array{Int64,1}
-    L::Int64
+    w::Vector{Float64}
+    dims::Vector{Int}
+    L::Int
 
     function ANN(dims::Vector, stdDev::Real)
         numWeights = 0
-        L = size(dims, 1) - 1
+        L = length(dims) - 1
         for l in 1:L
             numWeights += (dims[l]+1) * dims[l+1]
         end
@@ -20,41 +20,43 @@ type ANN <: Model
     end
 end
 
-function update(ann::ANN, momentums::Vector)
+function update!(ann::ANN, momentums::Vector)
     for l in 1:ann.L
-        setWeights(ann, l, getWeights(ann, l) + momentums[l])
+        setweights!(ann, l, weights(ann, l) + momentums[l])
     end
+    ann
 end
 
-function getDims(ann::ANN)
-    {(ann.dims[l+1], ann.dims[l]+1) for l in 1:ann.L}
+function Base.size(ann::ANN)
+    [(ann.dims[l+1], ann.dims[l]+1) for l in 1:ann.L]
 end
 
-function getWeights(ann::ANN, layer::Integer)
+function weights(ann::ANN, layer::Integer)
     offset = 1
     for l in 1:layer-1
         offset += (ann.dims[l]+1) * ann.dims[l+1]
     end
-    reshape(unsafe_view(ann.w, offset:offset+(ann.dims[layer]+1)*ann.dims[layer+1]-1),
+    reshape(view(ann.w, offset:offset+(ann.dims[layer]+1)*ann.dims[layer+1]-1),
             ann.dims[layer+1], ann.dims[layer]+1)
 end
 
-function setWeights(ann::ANN, layer::Integer, W::Matrix)
+function setweights!(ann::ANN, layer::Integer, W::Matrix)
     offset = 1
     for l in 1:layer-1
         offset += (ann.dims[l]+1) * ann.dims[l+1]
     end
     ann.w[offset:offset+(ann.dims[layer]+1)*ann.dims[layer+1]-1] = W[:]
+    ann
 end
 
 function predict(ann::ANN,
                  X::Matrix)
-    outputs = {}
+    outputs = Vector{Matrix{Float64}}()
     Z = X
     for l in 1:ann.L
-        Z = vcat(Z, ones(1, size(Z, 2)))
+        Z = vcat(Z, ones(Float64, 1, size(Z, 2)))
         push!(outputs, Z)
-        W = getWeights(ann, l)
+        W = weights(ann, l)
         A = W * Z
         if l < ann.L
             Z = tanh(A)
@@ -69,13 +71,13 @@ end
 function gradient(ann::ANN,
                   X::Matrix,
                   T::Matrix)
-    gradients = {}
+    gradients = Vector{Matrix{Float64}}()
     N = size(X, 2)
     Y, outputs = predict(ann, X)
     dEdX = Y - T
     MSE = sum(dEdX.^2) / (2 * N)
     for l in ann.L:-1:1
-        W = getWeights(ann, l)
+        W = weights(ann, l)
         Z = outputs[l+1]
         X = outputs[l]
         if l == ann.L
@@ -103,10 +105,9 @@ function demo_ann(numEpochs::Integer = 10,
     D = size(trainX, 1)
     F = size(trainY, 1)
     model = ANN([D, H, F], stdDev)
-    model = sgd(model, trainX, trainY, numEpochs, alpha, eta, batchSize)
+    model = sgd!(model, trainX, trainY, numEpochs, alpha, eta, batchSize)
 
     testX, testY = preprocess(testdata())
     correct, accuracy = score(model, testX, testY)
-    accuracy *= 100
-    println("$correct correct predictions ($accuracy% accuracy) on test set")
+    println("$correct correct predictions ($(accuracy*100)% accuracy) on test set")
 end
