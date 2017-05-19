@@ -59,4 +59,3 @@ and returns them interpreted as an MNIST-label-file header
 @noinline function labelheader(file::AbstractString)
     open(labelheader, file, "r")::Tuple{UInt32,Int}
 end
-

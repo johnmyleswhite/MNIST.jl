@@ -33,4 +33,3 @@ module MNIST
     include("features.jl")
 
 end
-

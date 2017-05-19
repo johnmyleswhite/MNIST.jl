@@ -1,11 +1,5 @@
 using MNIST
-
-if VERSION >= v"0.5-"
-    using Base.Test
-else
-    using BaseTestNext
-    const Test = BaseTestNext
-end
+using Base.Test
 
 tests = [
     ("header.jl", "Unit tests for constants and reading file headers")

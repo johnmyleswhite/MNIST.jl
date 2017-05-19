@@ -17,13 +17,28 @@ in the `data/` directory.
 To work with the data, you will typically want to store the digits
 in Julian matrices. To load the i-th image or label, use:
 
+* `trainimage(i)`
+* `testimage(i)`
 * `trainfeatures(i)`
 * `testfeatures(i)`
 * `trainlabel(i)`
 * `testlabel(i)`
 
-The features will be stored in a 784-entry `Float64` vector and
-the label will be returned as a `Float64` scalar.
+An images will be stored in 28x28 `UInt8` array, the features in
+784-entry `Float64` vector and the label will be returned as a
+`Float64` scalar. It is also possible to load multiple
+observations at once,
+
+```julia
+julia> summary(trainimage(1:5))
+"28×28×5 Array{UInt8,3}"
+
+julia> summary(trainfeatures(1:5))
+"784×5 Array{Float64,2}"
+
+julia> summary(trainlabel(1:5))
+"5-element Array{Float64,1}"
+```
 
 To access the entire data set at once, use:
 

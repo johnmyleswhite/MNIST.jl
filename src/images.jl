@@ -12,7 +12,7 @@ image are located and reads the next `nrows` * `ncols` bytes. The
 read bytes are returned as a `Matrix{UInt8}` of size `(nrows, ncols)`.
 """
 function readimage_raw(io::IO, index::Integer, nrows::Integer, ncols::Integer)
-    buffer = Array(UInt8, nrows, ncols)
+    buffer = Array{UInt8}(nrows, ncols)
     readimage_raw!(buffer, io, index, nrows, ncols)
 end
 
@@ -26,8 +26,8 @@ Reads the first `nrows` * `ncols` bytes for each image index in
 by `indices`.
 """
 function readimage_raw(io::IO, indices::AbstractVector, nrows::Integer, ncols::Integer)
-    images = Array(UInt8, nrows, ncols, length(indices))
-    buffer = Array(UInt8, nrows, ncols)
+    images = Array{UInt8}(nrows, ncols, length(indices))
+    buffer = Array{UInt8}(nrows, ncols)
     dst_index = 1
     for src_index in indices
         readimage_raw!(buffer, io, src_index, nrows, ncols)
@@ -51,10 +51,10 @@ first dimension denotes the pixel *rows* (x), and the second
 dimension denotes the pixel *columns* (y) of the image.
 
 - if `indices` is a `AbstractVector`, the images are returned as
-a 3D tensor (i.e. a `Array{UInt8,3}`), in which the first dimension
-corresponds to the pixel *rows* (x) of the image, the second
-dimension to the pixel *columns* (y) of the image, and the third
-dimension denotes the index of the image.
+a 3D array (i.e. a `Array{UInt8,3}`), in which the first
+dimension corresponds to the pixel *rows* (x) of the image, the
+second dimension to the pixel *columns* (y) of the image, and the
+third dimension denotes the index of the image.
 
 - if `indices` is ommited all images are returned
 (as 3D Tensor described above)
@@ -98,10 +98,10 @@ first dimension denotes the pixel *columns* (y), and the second
 dimension denotes the pixel *rows* (x) of the image.
 
 - if `indices` is a `AbstractVector`, the images are returned as
-a 3D tensor (i.e. a `Array{UInt8,3}`), in which the first dimension
-corresponds to the pixel *columns* (y) of the image, the second
-dimension to the pixel *rows* (x) of the image, and the third
-dimension denotes the index of the image.
+a 3D array (i.e. a `Array{UInt8,3}`), in which the first
+dimension corresponds to the pixel *columns* (y) of the image,
+the second dimension to the pixel *rows* (x) of the image, and
+the third dimension denotes the index of the image.
 
 - if `indices` is ommited all images are returned
 (as 3D Tensor described above)
@@ -125,7 +125,7 @@ dimension denotes the pixel *rows* (x), and the second dimension
 denotes the pixel *columns* (y) of the image.
 
 - if `indices` is a `AbstractVector`, the images are returned as
-a 3D tensor (i.e. a `Array{T,3}`), in which the first dimension
+a 3D array (i.e. a `Array{T,3}`), in which the first dimension
 corresponds to the pixel *rows* (x) of the image, the second
 dimension to the pixel *columns* (y) of the image, and the third
 dimension denotes the index of the image.
@@ -161,7 +161,7 @@ dimension denotes the pixel *columns* (y), and the second dimension
 denotes the pixel *rows* (x) of the image.
 
 - if `indices` is a `AbstractVector`, the images are returned as
-a 3D tensor (i.e. a `Array{T,3}`), in which the first dimension
+a 3D array (i.e. a `Array{T,3}`), in which the first dimension
 corresponds to the pixel *columns* (y) of the image, the second
 dimension to the pixel *rows* (x) of the image, and the third
 dimension denotes the index of the image.
@@ -181,4 +181,3 @@ testimage() = readimage(TESTIMAGES)
 testimage(index) = readimage(TESTIMAGES, index)
 testimage{T}(::Type{T}) = Array{T}(testimage())
 testimage{T}(::Type{T}, index) = Array{T}(testimage(index))
-

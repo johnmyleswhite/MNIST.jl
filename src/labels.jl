@@ -18,7 +18,7 @@ in a `Vector{UInt8}` of length `length(indices)` in the same order
 as denoted by `indices`.
 """
 function readlabel(io::IO, indices::AbstractVector)
-    labels = Array(UInt8, length(indices))
+    labels = Array{UInt8}(length(indices))
     dst_index = 1
     for src_index in indices
         labels[dst_index] = readlabel(io, src_index)
@@ -98,4 +98,3 @@ $(idx_doc("Float64"))
 testlabel() = Vector{Float64}(readlabel(TESTLABELS))
 testlabel(index::Integer) = Float64(readlabel(TESTLABELS, index))
 testlabel(indices::AbstractVector) = Vector{Float64}(readlabel(TESTLABELS, indices))
-

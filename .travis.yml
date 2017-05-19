@@ -4,12 +4,12 @@ os:
   - linux
   - osx
 julia:
-  - 0.4
-  - release
-#  - nightly
+  - 0.5
+  - 0.6
+  - nightly
 notifications:
   email: false
 # uncomment the following lines to override the default test script
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("MNIST"); Pkg.test("MNIST")'
+  - julia -e 'Pkg.clone(pwd()); Pkg.build("MNIST"); Pkg.test("MNIST")'
