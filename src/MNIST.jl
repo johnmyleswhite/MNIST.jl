@@ -23,42 +23,42 @@ module MNIST
     )
 
     function imageheader(filename::AbstractString)
-        io = open(filename, "r")
-        magic_number = bswap(read(io, UInt32))
-        total_items = bswap(read(io, UInt32))
-        nrows = bswap(read(io, UInt32))
-        ncols = bswap(read(io, UInt32))
-        close(io)
-        return (
-            magic_number,
-            Int(total_items),
-            Int(nrows),
-            Int(ncols)
-        )
+        open(filename, "r") do io
+            magic_number = bswap(read(io, UInt32))
+            total_items = bswap(read(io, UInt32))
+            nrows = bswap(read(io, UInt32))
+            ncols = bswap(read(io, UInt32))
+            return (
+                magic_number,
+                Int(total_items),
+                Int(nrows),
+                Int(ncols)
+            )
+        end
     end
 
     function labelheader(filename::AbstractString)
-        io = open(filename, "r")
-        magic_number = bswap(read(io, UInt32))
-        total_items = bswap(read(io, UInt32))
-        close(io)
-        return magic_number, Int(total_items)
+        open(filename, "r") do io
+            magic_number = bswap(read(io, UInt32))
+            total_items = bswap(read(io, UInt32))
+            return magic_number, Int(total_items)
+        end
     end
 
     function getimage(filename::AbstractString, index::Integer)
-        io = open(filename, "r")
-        seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-        image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
-        close(io)
-        return image_t'
+        open(filename, "r") do io
+            seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
+            image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
+            return image_t'
+        end
     end
 
     function getlabel(filename::AbstractString, index::Integer)
-        io = open(filename, "r")
-        seek(io, LABELOFFSET + (index - 1))
-        label = read(io, UInt8)
-        close(io)
-        return label
+        open(filename, "r") do io
+            seek(io, LABELOFFSET + (index - 1))
+            label = read(io, UInt8)
+            return label
+        end
     end
 
     function trainimage(index::Integer)
@@ -103,4 +103,3 @@ module MNIST
         return features, labels
     end
 end # module
-
