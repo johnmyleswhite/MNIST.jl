@@ -4,7 +4,7 @@ using MNIST
 
 # Multinomial logistic regression
 
-type MLR <: Model
+struct MLR <: Model
     W::Matrix{Float64}
     b::Matrix{Float64}
 

@@ -1,4 +1,4 @@
-abstract Model
+abstract type Model end
 
 function preprocess{R}(data::Tuple{Matrix{R}, Vector{R}})
     trainX, trainLabels = data

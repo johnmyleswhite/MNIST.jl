@@ -2,9 +2,10 @@ include("utils.jl")
 using NumericExtensions
 using MNIST
 
-# Artificial neural network
-
-type ANN <: Model
+"""
+Artificial neural network
+"""
+struct ANN <: Model
     w::Vector{Float64}
     dims::Vector{Int}
     L::Int
