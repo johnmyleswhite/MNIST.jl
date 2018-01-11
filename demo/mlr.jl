@@ -4,22 +4,22 @@ using MNIST
 
 # Multinomial logistic regression
 
-type MLR <: Model
-    W::Array{Float64,2}
-    b::Array{Float64,2}
+struct MLR <: Model
+    W::Matrix{Float64}
+    b::Matrix{Float64}
 
     function MLR(D::Integer, F::Integer)
-        new(zeros(F, D), zeros(F, 1))
+        new(zeros(Float64, F, D), zeros(Float64, F, 1))
     end
 end
 
-function update(model::MLR, momentums::Vector)
+function update!(model::MLR, momentums::Vector{Matrix{Float64}})
     model.W += momentums[1]
     model.b += momentums[2]
 end
 
-function getDims(model::MLR)
-    {size(model.W), size(model.b)}
+function Base.size(model::MLR)
+    (size(model.W), size(model.b))
 end
 
 function predict(model::MLR,
@@ -27,7 +27,7 @@ function predict(model::MLR,
     A = model.W * X
     broadcast(+, A, model.b)
     Z = softmax(A, 1)
-    Z, {Z}
+    Z, [Z]
 end
 
 function gradient(model::MLR,
@@ -38,8 +38,8 @@ function gradient(model::MLR,
     deltas = Y - T
     Wd = deltas * X' / N
     bd = sum(deltas, 2) / N
-    MSE = sum(deltas.^2) / (2 * N)
-    MSE, {Wd, bd}
+    MSE = sum(abs2, deltas) / (2 * N)
+    MSE, [Wd, bd]
 end
 
 function demo_mlr(numEpochs::Integer = 10,
@@ -50,10 +50,9 @@ function demo_mlr(numEpochs::Integer = 10,
     D = size(trainX, 1)
     F = size(trainY, 1)
     model = MLR(D, F)
-    model = sgd(model, trainX, trainY, numEpochs, alpha, eta, batchSize)
+    model = sgd!(model, trainX, trainY, numEpochs, alpha, eta, batchSize)
 
     testX, testY = preprocess(testdata())
     correct, accuracy = score(model, testX, testY)
-    accuracy *= 100
-    println("$correct correct predictions ($accuracy% accuracy) on test set")
+    println("$correct correct predictions ($(accuracy * 100)% accuracy) on test set")
 end
