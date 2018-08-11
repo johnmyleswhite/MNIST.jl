@@ -1,6 +1,9 @@
 MNIST.jl
 ========
 
+UPDATE: This package is not maintained. Please consider using [JuliaML/MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl) package if you need MNIST data set.
+-----------
+
 [![Build Status](https://travis-ci.org/johnmyleswhite/MNIST.jl.svg?branch=master)](https://travis-ci.org/johnmyleswhite/MNIST.jl)
 
 # Introduction
