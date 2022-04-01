@@ -48,7 +48,7 @@ module MNIST
     function getimage(filename::AbstractString, index::Integer)
         io = open(filename, "r")
         seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-        image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
+        image_t = [read(io, UInt8) for col ∈ 1:MNIST.NCOLS, row ∈ 1:MNIST.NROWS]
         close(io)
         return image_t'
     end
@@ -83,8 +83,8 @@ module MNIST
 
     function traindata()
         _, nimages, nrows, ncols = imageheader(TRAINIMAGES)
-        features = Array(Float64, nrows * ncols, nimages)
-        labels = Array(Float64, nimages)
+        features = Matrix{Float32}(undef, nrows * ncols, nimages)
+        labels = Vector{Float32}(undef, nimages)
         for index in 1:nimages
             features[:, index] = trainfeatures(index)
             labels[index] = trainlabel(index)
@@ -94,8 +94,8 @@ module MNIST
 
     function testdata()
         _, nimages, nrows, ncols = imageheader(TESTIMAGES)
-        features = Array(Float64, nrows * ncols, nimages)
-        labels = Array(Float64, nimages)
+        features = Matrix{Float32}(undef, nrows * ncols, nimages)
+        labels = Vector{Float32}(undef, nimages)
         for index in 1:nimages
             features[:, index] = testfeatures(index)
             labels[index] = testlabel(index)
