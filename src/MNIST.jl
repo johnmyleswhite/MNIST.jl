@@ -48,9 +48,9 @@ module MNIST
     function getimage(filename::AbstractString, index::Integer)
         io = open(filename, "r")
         seek(io, IMAGEOFFSET + NROWS * NCOLS * (index - 1))
-        image_t = read(io, UInt8, (MNIST.NROWS, MNIST.NCOLS))
+        image_t = [read(io, UInt8) for col ∈ 1:MNIST.NCOLS, row ∈ 1:MNIST.NROWS]
         close(io)
-        return image_t'
+        return image_t' ./ 255
     end
 
     function getlabel(filename::AbstractString, index::Integer)
@@ -58,23 +58,25 @@ module MNIST
         seek(io, LABELOFFSET + (index - 1))
         label = read(io, UInt8)
         close(io)
-        return label
+        label_maker = zeros(10)
+        label_maker[label+1] = 1.0
+        return label_maker
     end
 
     function trainimage(index::Integer)
-        convert(Array{Float64}, getimage(TRAINIMAGES, index))
+        convert(Array{Float32}, getimage(TRAINIMAGES, index))
     end
 
     function testimage(index::Integer)
-        convert(Array{Float64}, getimage(TESTIMAGES, index))
+        convert(Array{Float32}, getimage(TESTIMAGES, index))
     end
 
     function trainlabel(index::Integer)
-        convert(Float64, getlabel(TRAINLABELS, index))
+        convert(Array{Float32}, getlabel(TRAINLABELS, index))
     end
 
     function testlabel(index::Integer)
-        convert(Float64, getlabel(TESTLABELS, index))
+        convert(Array{Float32}, getlabel(TESTLABELS, index))
     end
 
     trainfeatures(index::Integer) = vec(trainimage(index))
@@ -83,22 +85,22 @@ module MNIST
 
     function traindata()
         _, nimages, nrows, ncols = imageheader(TRAINIMAGES)
-        features = Array(Float64, nrows * ncols, nimages)
-        labels = Array(Float64, nimages)
+        features = Matrix{Float32}(undef, nrows * ncols, nimages)
+        labels = Matrix{Float32}(undef, 10, nimages)
         for index in 1:nimages
-            features[:, index] = trainfeatures(index)
-            labels[index] = trainlabel(index)
+            features[:, index] .= trainfeatures(index)
+            labels[:, index] .= trainlabel(index)
         end
         return features, labels
     end
 
     function testdata()
         _, nimages, nrows, ncols = imageheader(TESTIMAGES)
-        features = Array(Float64, nrows * ncols, nimages)
-        labels = Array(Float64, nimages)
+        features = Matrix{Float32}(undef, nrows * ncols, nimages)
+        labels = Matrix{Float32}(undef, 10, nimages)
         for index in 1:nimages
-            features[:, index] = testfeatures(index)
-            labels[index] = testlabel(index)
+            features[:, index] .= testfeatures(index)
+            labels[:, index] .= testlabel(index)
         end
         return features, labels
     end

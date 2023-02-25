@@ -1,0 +1,4 @@
+name = "MNIST"
+uuid = "e17bdaa3-9099-4a22-9774-57008de933ab"
+authors = ["Robert Lutz <robertlutzi@gmail.com>"]
+version = "0.1.0"
